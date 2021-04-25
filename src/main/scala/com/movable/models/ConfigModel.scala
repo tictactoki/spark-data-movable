@@ -9,6 +9,7 @@ object NamespaceConfig extends Enumeration {
   val Dbs = "dbs"
   val Files = "files"
   val Spark = "spark"
+  val Aws = "aws"
 
   val DbsNamespace = s"$Movable.$Dbs"
   val FilesNamespace = s"$Movable.$Files"
@@ -32,6 +33,10 @@ object NamespaceConfig extends Enumeration {
     val IsLocalJob = "is_local_job"
   }
 
+  object AwsNamespace {
+    val Region = "region"
+  }
+
 }
 
 trait ConfigNamespace {
@@ -47,6 +52,12 @@ case class SparkConfigBuilder(config: Config) extends ConfigBuilder {
   import NamespaceConfig.SparkNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.Movable)(NamespaceConfig.Spark)
   lazy val isLocalJob = config.getBoolean(getConfigField(namespace)(IsLocalJob))
+}
+
+case class AWSConfigBuilder(config: Config) extends ConfigBuilder {
+  import NamespaceConfig.AwsNamespace._
+  override val namespace: String = getConfigField(NamespaceConfig.Movable)(NamespaceConfig.Aws)
+  lazy val region = config.getString(getConfigField(namespace)(Region))
 }
 
 case class DBSConfigBuilder(config: Config, serverName: String, dbs: String) extends ConfigBuilder {

@@ -6,9 +6,9 @@ import com.typesafe.config.Config
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 
-abstract class SparkSessionTask(s3Utils: S3Utils = S3Utils(),
-                                 config: Config) {
+abstract class SparkSessionTask(config: Config) {
 
+  val s3Utils = S3Utils(config)
   protected val sparkConfigBuilder = SparkConfigBuilder(config)
   protected val isLocal = sparkConfigBuilder.isLocalJob
 

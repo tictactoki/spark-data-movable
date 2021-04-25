@@ -3,16 +3,19 @@ package com.movable.utils
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.movable.models.AWSConfigBuilder
+import com.typesafe.config.Config
 
 import scala.collection.JavaConverters._
 
-case class S3Utils() {
+case class S3Utils(config: Config) {
 
-  val region = Regions.EU_WEST_3
+
+  val awsConfigBuilder = AWSConfigBuilder(config)
   val env = new ProfileCredentialsProvider()
   val s3Client = AmazonS3ClientBuilder.standard()
     .withCredentials(env)
-    .withRegion(region)
+    .withRegion(awsConfigBuilder.region)
     .build()
 
   def bucketList() = {
