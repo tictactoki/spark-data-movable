@@ -12,13 +12,25 @@ val typesafeConfigVersion = "1.4.0"
 
 val scalaTestVersion = "3.1.1"
 
+val awsVersion = "1.11.971"
+
+val sparkVersion = "3.1.1"
+
 libraryDependencies ++= Seq(
   "com.typesafe" % "config" % typesafeConfigVersion,
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.769",
   "org.slf4j" % "slf4j-api" % "1.7.30",
   "org.slf4j" % "slf4j-simple" % "1.7.30",
 
-  "org.apache.spark" %% "spark-sql" % "3.1.1",
+  "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
+  "com.amazonaws" % "aws-java-sdk" % awsVersion,
+  "com.amazonaws" % "aws-java-sdk-core" % awsVersion,
+  "org.apache.hadoop" % "hadoop-common" % "3.3.0",
+  "org.apache.hadoop" % "hadoop-client" % "3.3.0",
+  "org.apache.hadoop" % "hadoop-aws" % "3.3.0",
+
+
+  "org.apache.spark" %% "spark-core" % sparkVersion,
+  "org.apache.spark" %% "spark-sql" % sparkVersion,
 
 
   // jdbc connector with quill
