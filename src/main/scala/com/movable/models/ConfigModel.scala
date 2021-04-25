@@ -5,12 +5,13 @@ import com.typesafe.config.Config
 import scala.util.Try
 
 object NamespaceConfig extends Enumeration {
-  private val Movable = "movable"
-  private val Dbs = "dbs"
-  private val Files = "files"
+  val Movable = "movable"
+  val Dbs = "dbs"
+  val Files = "files"
+  val Spark = "spark"
+
   val DbsNamespace = s"$Movable.$Dbs"
   val FilesNamespace = s"$Movable.$Files"
-
 
   object DBSNamespace {
     val Driver = "driver"
@@ -27,6 +28,10 @@ object NamespaceConfig extends Enumeration {
     val OutputPath = "output_path"
   }
 
+  object SparkNamespace {
+    val IsLocalJob = "is_local_job"
+  }
+
 }
 
 trait ConfigNamespace {
@@ -36,6 +41,12 @@ trait ConfigNamespace {
 abstract class ConfigBuilder extends ConfigNamespace {
   def getConfigField(namespace: String)(field: String) = s"$namespace.$field"
   protected lazy val curryingNamespace: String => String = (field: String) => getConfigField(namespace)(field)
+}
+
+case class SparkConfigBuilder(config: Config) extends ConfigBuilder {
+  import NamespaceConfig.SparkNamespace._
+  override val namespace: String = getConfigField(NamespaceConfig.Movable)(NamespaceConfig.Spark)
+  lazy val isLocalJob = config.getBoolean(getConfigField(namespace)(IsLocalJob))
 }
 
 case class DBSConfigBuilder(config: Config, serverName: String, dbs: String) extends ConfigBuilder {
