@@ -63,7 +63,7 @@ case class AWSConfigBuilder(config: Config) extends ConfigBuilder {
 case class DBSConfigBuilder(config: Config, serverName: String, dbs: String) extends ConfigBuilder {
   import NamespaceConfig.DBSNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.DbsNamespace)(serverName)
-  lazy val dbsNamespace: String = super.curryingNamespace(dbs)
+  lazy val dbsNamespace: String = curryingNamespace(dbs)
   lazy val driver: String = config.getString(s"$dbsNamespace.$Driver")
   lazy val host: String = config.getString(s"$dbsNamespace.$Host")
   lazy val port: Try[Int] = Try(config.getInt(s"$dbsNamespace.$Port"))

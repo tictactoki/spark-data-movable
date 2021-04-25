@@ -1,7 +1,6 @@
 package com.movable.utils
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.movable.models.AWSConfigBuilder
 import com.typesafe.config.Config
