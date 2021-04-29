@@ -11,10 +11,11 @@ abstract class SparkSessionTask(config: Config) {
   val s3Utils = S3Utils(config)
   protected val sparkConfigBuilder = SparkConfigBuilder(config)
   protected val isLocal = sparkConfigBuilder.isLocalJob
+  protected val workerNumber = sparkConfigBuilder.workerNumber
 
   lazy val builder: Boolean => SparkSession.Builder = (isLocal: Boolean) => {
     if (isLocal)
-      SparkSession.builder().master("local[*]")
+      SparkSession.builder().master(s"local[$workerNumber]")
     else SparkSession.builder()
   }
 

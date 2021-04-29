@@ -31,6 +31,7 @@ object NamespaceConfig extends Enumeration {
 
   object SparkNamespace {
     val IsLocalJob = "is_local_job"
+    val WorkerNumber = "worker_number"
   }
 
   object AwsNamespace {
@@ -52,6 +53,7 @@ case class SparkConfigBuilder(config: Config) extends ConfigBuilder {
   import NamespaceConfig.SparkNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.Movable)(NamespaceConfig.Spark)
   lazy val isLocalJob = config.getBoolean(getConfigField(namespace)(IsLocalJob))
+  lazy val workerNumber = Try(config.getString(getConfigField(namespace)(WorkerNumber))).getOrElse("*")
 }
 
 case class AWSConfigBuilder(config: Config) extends ConfigBuilder {
