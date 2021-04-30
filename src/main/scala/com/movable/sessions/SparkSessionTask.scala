@@ -6,7 +6,7 @@ import com.typesafe.config.Config
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 
-abstract class SparkSessionTask(config: Config) {
+abstract class SparkSessionTask(val config: Config) {
 
   val s3Utils = S3Utils(config)
   protected val sparkConfigBuilder = SparkConfigBuilder(config)
