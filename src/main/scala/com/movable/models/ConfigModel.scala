@@ -1,5 +1,6 @@
 package com.movable.models
 
+import com.movable.models.dbs.DBSType
 import com.typesafe.config.Config
 
 import scala.util.Try
@@ -21,6 +22,7 @@ object NamespaceConfig extends Enumeration {
     val Port = "port"
     val Username = "username"
     val Pwd = "password"
+    val Type = "type"
   }
 
   object FileNamespace {
@@ -68,10 +70,19 @@ case class DBSConfigBuilder(override val config: Config, serverName: String, dbs
   lazy val dbsNamespace: String = curryingNamespace(dbs)
   lazy val driver: String = config.getString(s"$dbsNamespace.$Driver")
   lazy val host: String = config.getString(s"$dbsNamespace.$Host")
-  lazy val port: Try[Int] = Try(config.getInt(s"$dbsNamespace.$Port"))
+  lazy val port: Option[Int] = Try(config.getInt(s"$dbsNamespace.$Port")).toOption
   lazy val db: String = config.getString(s"$dbsNamespace.$Db")
-  lazy val username: Try[String] = Try(config.getString(s"$dbsNamespace.$Username"))
-  lazy val pwd: Try[String] = Try(config.getString(s"$dbsNamespace.$Pwd"))
+  lazy val username: String = config.getString(s"$dbsNamespace.$Username")
+  lazy val pwd: Option[String] = Try(config.getString(s"$dbsNamespace.$Pwd"))toOption
+  lazy val baseType: String = config.getString(s"$dbsNamespace.$Type")
+  lazy val jdbcUrl = {
+    val p = port.map(i => s":$i").getOrElse("")
+    baseType match {
+      case DBSType.SQLServer => s"jdbc:sqlserver://$host$p;databaseName=$db"
+      case DBSType.MySQL => s"jdbc:mysql://$host$p/$db"
+      case DBSType.PostgreSQL => s"jdbc:postgresql://$host$p/$db"
+    }
+  }
 }
 
 case class FileConfigBuilder(override val config: Config,
