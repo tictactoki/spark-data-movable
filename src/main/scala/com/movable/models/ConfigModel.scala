@@ -44,25 +44,25 @@ trait ConfigNamespace {
   val namespace: String
 }
 
-abstract class ConfigBuilder extends ConfigNamespace {
+abstract class ConfigBuilder(val config: Config) extends ConfigNamespace {
   def getConfigField(namespace: String)(field: String) = s"$namespace.$field"
   protected lazy val curryingNamespace: String => String = (field: String) => getConfigField(namespace)(field)
 }
 
-case class SparkConfigBuilder(config: Config) extends ConfigBuilder {
+case class SparkConfigBuilder(override val config: Config) extends ConfigBuilder(config) {
   import NamespaceConfig.SparkNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.Movable)(NamespaceConfig.Spark)
   lazy val isLocalJob = config.getBoolean(getConfigField(namespace)(IsLocalJob))
   lazy val workerNumber = Try(config.getString(getConfigField(namespace)(WorkerNumber))).getOrElse("*")
 }
 
-case class AWSConfigBuilder(config: Config) extends ConfigBuilder {
+case class AWSConfigBuilder(override val config: Config) extends ConfigBuilder(config) {
   import NamespaceConfig.AwsNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.Movable)(NamespaceConfig.Aws)
   lazy val region = config.getString(getConfigField(namespace)(Region))
 }
 
-case class DBSConfigBuilder(config: Config, serverName: String, dbs: String) extends ConfigBuilder {
+case class DBSConfigBuilder(override val config: Config, serverName: String, dbs: String) extends ConfigBuilder(config) {
   import NamespaceConfig.DBSNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.DbsNamespace)(serverName)
   lazy val dbsNamespace: String = curryingNamespace(dbs)
@@ -74,8 +74,8 @@ case class DBSConfigBuilder(config: Config, serverName: String, dbs: String) ext
   lazy val pwd: Try[String] = Try(config.getString(s"$dbsNamespace.$Pwd"))
 }
 
-case class FileConfigBuilder(config: Config,
-                                 inputDirectorySource: String) extends ConfigBuilder {
+case class FileConfigBuilder(override val config: Config,
+                                 inputDirectorySource: String) extends ConfigBuilder(config) {
   import NamespaceConfig.FileNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.FilesNamespace)(inputDirectorySource)
   lazy val fileNamespace: String => String = getConfigField(namespace)

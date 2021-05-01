@@ -1,12 +1,12 @@
 package com.movable.models
 
-import com.movable.sessions.SparkSessionTask
+import com.typesafe.config.Config
 
 trait SparkSessionConnection {
-  that: SparkSessionTask =>
 
-  protected val getJdbcConfigBuilder = (serverName: String, dbs: String) => DBSConfigBuilder(that.config, serverName, dbs)
-  protected val getFileConfigBuilder = (inputPath: String) => FileConfigBuilder(that.config, inputPath)
+  protected val getJdbcConfigBuilder = (config: Config, serverName: String, dbs: String) =>
+    DBSConfigBuilder(config, serverName, dbs)
+  protected val getFileConfigBuilder = (config: Config, inputPath: String) => FileConfigBuilder(config, inputPath)
 
 
 
