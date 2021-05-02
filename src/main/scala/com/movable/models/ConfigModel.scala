@@ -68,7 +68,7 @@ case class DBSConfigBuilder(override val config: Config, serverName: String, dbs
   import NamespaceConfig.DBSNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.DbsNamespace)(serverName)
   lazy val dbsNamespace: String = curryingNamespace(dbs)
-  lazy val driver: String = config.getString(s"$dbsNamespace.$Driver")
+  lazy val driver: Option[String] = Try(config.getString(s"$dbsNamespace.$Driver")).toOption
   lazy val host: String = config.getString(s"$dbsNamespace.$Host")
   lazy val port: Option[Int] = Try(config.getInt(s"$dbsNamespace.$Port")).toOption
   lazy val db: String = config.getString(s"$dbsNamespace.$Db")
@@ -90,7 +90,8 @@ case class FileConfigBuilder(override val config: Config,
   import NamespaceConfig.FileNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.FilesNamespace)(inputDirectorySource)
   lazy val fileNamespace: String => String = getConfigField(namespace)
-  lazy val inputFileFormat: String = fileNamespace(InputFileFormat)
-  lazy val inputPath: String = fileNamespace(InputPath)
+  lazy val inputFileFormat: Option[String] = Try(fileNamespace(InputFileFormat)).toOption
+  lazy val inputPath: Option[String] = Try(fileNamespace(InputPath)).toOption
+  lazy val outputFileFormat: String = fileNamespace(InputFileFormat)
   lazy val outputPath: String = fileNamespace(outputPath)
 }

@@ -13,11 +13,17 @@ trait SparkSessionConnection {
   protected val getFileConfigBuilder = (config: Config, inputPath: String) => FileConfigBuilder(config, inputPath)
 
   protected def read(fileConfigBuilder: FileConfigBuilder, session: SparkSession): DataFrame = {
-    fileConfigBuilder.inputFileFormat match {
-      case FileFormat.CSV => session.read.csv(fileConfigBuilder.inputPath)
-      case FileFormat.JSON => session.read.json(fileConfigBuilder.inputPath)
-      case FileFormat.PARQUET => session.read.parquet(fileConfigBuilder.inputPath)
+    val optDf = for {
+      inputFormat <- fileConfigBuilder.inputFileFormat
+      inputPath <- fileConfigBuilder.inputPath
+    } yield {
+      inputFormat match {
+        case FileFormat.CSV => session.read.csv(inputPath)
+        case FileFormat.JSON => session.read.json(inputPath)
+        case FileFormat.PARQUET => session.read.parquet(inputPath)
+      }
     }
+    optDf.getOrElse(session.emptyDataFrame)
   }
 
   protected def read(dbsConfigBuilder: DBSConfigBuilder,
@@ -26,7 +32,7 @@ trait SparkSessionConnection {
     val properties = {
       val p = new Properties()
       p.setProperty(Username, dbsConfigBuilder.username)
-      p.setProperty(Driver, dbsConfigBuilder.driver)
+      dbsConfigBuilder.driver.map { d => p.setProperty(Driver, d) }
       dbsConfigBuilder.pwd.map { pwd => p.setProperty(Pwd, pwd) }
       p
     }

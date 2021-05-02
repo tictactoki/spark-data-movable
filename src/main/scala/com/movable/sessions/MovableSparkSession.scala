@@ -1,12 +1,12 @@
 package com.movable.sessions
 
-import com.movable.models.SparkConfigBuilder
+import com.movable.models.{ConfigBuilder, SparkConfigBuilder}
 import com.movable.utils.S3Utils
 import com.typesafe.config.Config
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 
-abstract class SparkSessionTask(val config: Config) {
+abstract class MovableSparkSession(val config: Config) {
 
   val s3Utils = S3Utils(config)
   protected val sparkConfigBuilder = SparkConfigBuilder(config)
@@ -28,4 +28,7 @@ abstract class SparkSessionTask(val config: Config) {
     sc
   }
   lazy val sc: SparkContext = session.sparkContext
+
+  protected val inputData: ConfigBuilder
+  protected val outputData: ConfigBuilder
 }
