@@ -3,6 +3,7 @@ package com.movable.models
 import com.movable.models.dbs.{DBSDriver, DBSType}
 import com.typesafe.config.Config
 
+import java.util.Properties
 import scala.util.Try
 
 object NamespaceConfig extends Enumeration {
@@ -46,25 +47,28 @@ trait ConfigNamespace {
   val namespace: String
 }
 
-abstract class ConfigBuilder(val config: Config) extends ConfigNamespace {
+sealed abstract class ConfigBuilder(val config: Config) extends ConfigNamespace {
   def getConfigField(namespace: String)(field: String) = s"$namespace.$field"
   protected lazy val curryingNamespace: String => String = (field: String) => getConfigField(namespace)(field)
 }
 
-case class SparkConfigBuilder(override val config: Config) extends ConfigBuilder(config) {
+sealed trait RecordConfigBuilder
+
+final case class SparkConfigBuilder(override val config: Config) extends ConfigBuilder(config) {
   import NamespaceConfig.SparkNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.Movable)(NamespaceConfig.Spark)
   lazy val isLocalJob = config.getBoolean(getConfigField(namespace)(IsLocalJob))
   lazy val workerNumber = Try(config.getString(getConfigField(namespace)(WorkerNumber))).getOrElse("*")
 }
 
-case class AWSConfigBuilder(override val config: Config) extends ConfigBuilder(config) {
+final case class AWSConfigBuilder(override val config: Config) extends ConfigBuilder(config) {
   import NamespaceConfig.AwsNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.Movable)(NamespaceConfig.Aws)
   lazy val region = config.getString(getConfigField(namespace)(Region))
 }
 
-case class DBSConfigBuilder(override val config: Config, serverName: String, dbs: String) extends ConfigBuilder(config) {
+final case class DBSConfigBuilder(override val config: Config, serverName: String, dbs: String)
+  extends ConfigBuilder(config) with RecordConfigBuilder {
   import NamespaceConfig.DBSNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.DbsNamespace)(serverName)
   lazy val dbsNamespace: String = curryingNamespace(dbs)
@@ -83,10 +87,18 @@ case class DBSConfigBuilder(override val config: Config, serverName: String, dbs
       case DBSType.PostgreSQL => (s"jdbc:postgresql://$host$p/$db", DBSDriver.PsqlDriver)
     }
   }
+  lazy val jdbcProperties = {
+    val p = new Properties()
+    p.setProperty(Username, username)
+    p.setProperty(Driver, driver)
+    pwd.map { pwd => p.setProperty(Pwd, pwd) }
+    p
+  }
 }
 
-case class FileConfigBuilder(override val config: Config,
-                                 inputDirectorySource: String) extends ConfigBuilder(config) {
+final case class FileConfigBuilder(override val config: Config,
+                                 inputDirectorySource: String)
+  extends ConfigBuilder(config) with RecordConfigBuilder {
   import NamespaceConfig.FileNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.FilesNamespace)(inputDirectorySource)
   lazy val fileNamespace: String => String = getConfigField(namespace)

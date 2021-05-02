@@ -1,5 +1,6 @@
 package com.movable.sessions
 
+import com.movable.models.{DBSConfigBuilder, FileConfigBuilder, FileFormat}
 import org.apache.spark.sql.DataFrame
 
 trait AggregationTask {
@@ -21,7 +22,18 @@ trait AggregationTask {
    *
    * @param dataFrame
    */
-  protected def doSave(dataFrame: DataFrame) = {}
+  protected def doSave(dataFrame: DataFrame) = {
+    outputData match {
+      case f: FileConfigBuilder =>
+        f.outputFileFormat match {
+          case FileFormat.PARQUET => dataFrame.write.parquet(f.outputPath)
+          case FileFormat.CSV => dataFrame.write.csv(f.outputPath)
+          case FileFormat.JSON => dataFrame.write.json(f.outputPath)
+        }
+      //case d:DBSConfigBuilder => dataFrame.write.jdbc(d.jdbcUrl,)
+      case _ => throw new Exception
+    }
+  }
 
   /**
    * If you must do something after saving data
