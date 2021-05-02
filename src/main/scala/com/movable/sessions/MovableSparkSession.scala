@@ -7,7 +7,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 
 abstract class MovableSparkSession(val config: Config)
-  extends SparkSessionConnection with SparkSessionTask {
+  extends SparkSessionConnection with AggregationTask {
 
   val s3Utils = S3Utils(config)
   protected val sparkConfigBuilder = SparkConfigBuilder(config)
