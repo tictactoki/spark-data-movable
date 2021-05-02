@@ -1,6 +1,6 @@
 package com.movable.models
 
-import com.movable.models.dbs.DBSType
+import com.movable.models.dbs.{DBSDriver, DBSType}
 import com.typesafe.config.Config
 
 import scala.util.Try
@@ -68,19 +68,19 @@ case class DBSConfigBuilder(override val config: Config, serverName: String, dbs
   import NamespaceConfig.DBSNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.DbsNamespace)(serverName)
   lazy val dbsNamespace: String = curryingNamespace(dbs)
-  lazy val driver: Option[String] = Try(config.getString(s"$dbsNamespace.$Driver")).toOption
+  //lazy val driver: Option[String] = Try(config.getString(s"$dbsNamespace.$Driver")).toOption
   lazy val host: String = config.getString(s"$dbsNamespace.$Host")
   lazy val port: Option[Int] = Try(config.getInt(s"$dbsNamespace.$Port")).toOption
   lazy val db: String = config.getString(s"$dbsNamespace.$Db")
   lazy val username: String = config.getString(s"$dbsNamespace.$Username")
   lazy val pwd: Option[String] = Try(config.getString(s"$dbsNamespace.$Pwd"))toOption
   lazy val baseType: String = config.getString(s"$dbsNamespace.$Type")
-  lazy val jdbcUrl = {
+  lazy val (jdbcUrl, driver) = {
     val p = port.map(i => s":$i").getOrElse("")
     baseType match {
-      case DBSType.SQLServer => s"jdbc:sqlserver://$host$p;databaseName=$db"
-      case DBSType.MySQL => s"jdbc:mysql://$host$p/$db"
-      case DBSType.PostgreSQL => s"jdbc:postgresql://$host$p/$db"
+      case DBSType.SQLServer => (s"jdbc:sqlserver://$host$p;databaseName=$db", DBSDriver.SqlServerDriver)
+      case DBSType.MySQL => (s"jdbc:mysql://$host$p/$db", DBSDriver.MysqlDriver)
+      case DBSType.PostgreSQL => (s"jdbc:postgresql://$host$p/$db", DBSDriver.PsqlDriver)
     }
   }
 }

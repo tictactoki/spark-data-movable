@@ -1,6 +1,6 @@
 package com.movable.models.dbs
 
-import com.movable.models.{DBSConfigBuilder, SparkSessionConnection}
+import com.movable.models.DBSConfigBuilder
 import com.typesafe.config.Config
 
 case class SampleDBSConfig(config: Config) {

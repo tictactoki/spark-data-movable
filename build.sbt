@@ -8,6 +8,13 @@ scalaVersion := "2.12.10"
 
 Compile / run / scalacOptions ++= Seq("-deprecation")
 
+assembly / assemblyJarName := "spark-fatjar-1.0.jar"
+
+assembly / assemblyMergeStrategy := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}
+
 val typesafeConfigVersion = "1.4.0"
 
 val scalaTestVersion = "3.1.1"
@@ -18,7 +25,6 @@ val sparkVersion = "3.1.1"
 
 libraryDependencies ++= Seq(
   "com.typesafe" % "config" % typesafeConfigVersion,
-  "org.slf4j" % "slf4j-api" % "1.7.30",
   "org.slf4j" % "slf4j-simple" % "1.7.30",
 
   "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
