@@ -29,6 +29,7 @@ object NamespaceConfig extends Enumeration {
   object FileNamespace {
     val InputFileFormat = "input_file_format"
     val InputPath = "input_path"
+    val OutputFileFormat = "output_file_format"
     val OutputPath = "output_path"
   }
 
@@ -102,8 +103,8 @@ final case class FileConfigBuilder(override val config: Config,
   import NamespaceConfig.FileNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.FilesNamespace)(inputDirectorySource)
   lazy val fileNamespace: String => String = getConfigField(namespace)
-  lazy val inputFileFormat: Option[String] = Try(fileNamespace(InputFileFormat)).toOption
-  lazy val inputPath: Option[String] = Try(fileNamespace(InputPath)).toOption
-  lazy val outputFileFormat: String = fileNamespace(InputFileFormat)
-  lazy val outputPath: String = fileNamespace(outputPath)
+  lazy val inputFileFormat: Option[String] = Try(config.getString(fileNamespace(InputFileFormat))).toOption
+  lazy val inputPath: Option[String] = Try(config.getString(fileNamespace(InputPath))).toOption
+  lazy val outputFileFormat: String = config.getString(fileNamespace(OutputFileFormat))
+  lazy val outputPath: String = config.getString(fileNamespace(OutputPath))
 }
