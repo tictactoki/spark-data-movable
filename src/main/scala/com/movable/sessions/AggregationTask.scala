@@ -2,27 +2,34 @@ package com.movable.sessions
 
 import com.movable.models.{DBSConfigBuilder, FileConfigBuilder, FileFormat}
 import org.apache.spark.sql.DataFrame
-
+import scala.collection.mutable.{HashMap, Map}
 trait AggregationTask {
   that: MovableSparkSession =>
 
   /**
-   * If you want to add some specific configuration before the run job
+   * Add some specific stuff
    */
-  protected def beforeSave(): Unit = {}
+  @transient private[sessions] lazy val context: Map[String, String] = collection.mutable.HashMap[String, String]()
+
+  /**
+   * If you want to add some specific configuration before the run job
+   * @param context
+   */
+  protected def beforeSave(context: Map[String, String]): Unit = {}
 
   /**
    *
+   * @param context
    * @return the aggregated DataFrame for the specific task
    */
-  protected def aggregation(): DataFrame
+  protected def aggregation(context: Map[String, String]): DataFrame
 
   /**
    * Where you save your data
-   *
+   * @param context
    * @param dataFrame
    */
-  protected def doSave(dataFrame: DataFrame) = {
+  protected def doSave(context: Map[String, String], dataFrame: DataFrame) = {
     outputData match {
       case f: FileConfigBuilder =>
         f.outputFileFormat match {
@@ -30,25 +37,29 @@ trait AggregationTask {
           case FileFormat.CSV => dataFrame.write.csv(f.outputPath)
           case FileFormat.JSON => dataFrame.write.json(f.outputPath)
         }
-      //case d:DBSConfigBuilder => dataFrame.write.jdbc(d.jdbcUrl,)
+      case d:DBSConfigBuilder => {
+        val table = context.getOrElse("table",
+          throw new Exception("You have to specify the table where you want to save your data"))
+        dataFrame.write.jdbc(d.jdbcUrl, table, d.jdbcProperties)
+      }
       case _ => throw new Exception
     }
   }
 
   /**
    * If you must do something after saving data
-   *
+   * @param context
    * @param dataFrame
    */
-  protected def afterSave(dataFrame: DataFrame): Unit = {}
+  protected def afterSave(context: Map[String, String], dataFrame: DataFrame): Unit = {}
 
 
   def run() = {
     try {
-      beforeSave()
-      val agg = aggregation()
-      doSave(agg)
-      afterSave(agg)
+      beforeSave(context)
+      val agg = aggregation(context)
+      doSave(context, agg)
+      afterSave(context, agg)
     } finally {
       session.close()
     }
