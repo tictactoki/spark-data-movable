@@ -1,15 +1,18 @@
 package com.movable.sessions
 
-import com.movable.models.{DBSConfigBuilder, FileConfigBuilder, FileFormat}
+import com.movable.models.{DBSConfigBuilder, FileConfigBuilder, FileFormat, RecordConfigBuilder}
 import org.apache.spark.sql.DataFrame
+
 import scala.collection.mutable.{HashMap, Map}
 trait AggregationTask {
   that: MovableSparkSession =>
 
+  protected val outputData: RecordConfigBuilder
+
   /**
    * Add some specific stuff
    */
-  @transient private[sessions] lazy val context: Map[String, String] = collection.mutable.HashMap[String, String]()
+  @transient private[sessions] lazy val context: Map[String, String] = HashMap[String, String]()
 
   /**
    * If you want to add some specific configuration before the run job
@@ -42,7 +45,6 @@ trait AggregationTask {
           throw new Exception("You have to specify the table where you want to save your data"))
         dataFrame.write.jdbc(d.jdbcUrl, table, d.jdbcProperties)
       }
-      case _ => throw new Exception
     }
   }
 

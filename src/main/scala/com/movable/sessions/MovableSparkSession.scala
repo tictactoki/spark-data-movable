@@ -6,8 +6,7 @@ import com.typesafe.config.Config
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 
-abstract class MovableSparkSession(val config: Config)
-  extends SparkSessionConnection with AggregationTask {
+abstract class MovableSparkSession(val config: Config) {
 
   val s3Utils = S3Utils(config)
   protected val sparkConfigBuilder = SparkConfigBuilder(config)
@@ -20,7 +19,7 @@ abstract class MovableSparkSession(val config: Config)
     else SparkSession.builder()
   }
 
-  lazy val session: SparkSession = {
+  @transient lazy val session: SparkSession = {
     val sc = builder(isLocal).getOrCreate()
     if(isLocal) {
       sc.sparkContext.hadoopConfiguration.set("fs.s3a.access.key",s3Utils.env.getCredentials.getAWSAccessKeyId)
@@ -28,5 +27,5 @@ abstract class MovableSparkSession(val config: Config)
     }
     sc
   }
-  lazy val sc: SparkContext = session.sparkContext
+  @transient lazy val sc: SparkContext = session.sparkContext
 }
