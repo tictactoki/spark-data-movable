@@ -25,7 +25,7 @@ trait AggregationTask {
    * @param context
    * @return the aggregated DataFrame for the specific task
    */
-  protected def aggregation(context: Map[String, String]): DataFrame
+  def aggregation(context: Map[String, String]): DataFrame
 
   /**
    * Where you save your data
