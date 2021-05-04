@@ -7,7 +7,7 @@ import com.typesafe.config.Config
 
 import scala.collection.JavaConverters._
 
-case class S3Utils(config: Config) {
+final case class S3Utils(config: Config) {
 
 
   val awsConfigBuilder = AWSConfigBuilder(config)

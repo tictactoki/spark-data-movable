@@ -73,7 +73,6 @@ final case class DBSConfigBuilder(override val config: Config, serverName: Strin
   import NamespaceConfig.DBSNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.DbsNamespace)(serverName)
   lazy val dbsNamespace: String = curryingNamespace(dbs)
-  //lazy val driver: Option[String] = Try(config.getString(s"$dbsNamespace.$Driver")).toOption
   lazy val host: String = config.getString(s"$dbsNamespace.$Host")
   lazy val port: Option[Int] = Try(config.getInt(s"$dbsNamespace.$Port")).toOption
   lazy val db: String = config.getString(s"$dbsNamespace.$Db")

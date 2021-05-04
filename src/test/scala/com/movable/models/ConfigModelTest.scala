@@ -1,5 +1,6 @@
 package com.movable.models
 
+import com.movable.models.dbs.{DBSDriver, DBSType}
 import com.typesafe.config.ConfigFactory
 import org.scalatest.flatspec.AnyFlatSpec
 
@@ -23,6 +24,14 @@ class ConfigModelTest extends AnyFlatSpec with ConfigFactoryTest {
     assert(configBuilder.outputPath === "output_path")
     assert(configBuilder.inputFileFormat === None)
     assert(configBuilder.inputPath === None)
+  }
+
+  "A DBS Config Builder class" should "load the config in DBSConfigBuilder format" in {
+    val configBuilder = DBSConfigBuilder(config, "localhost", "dbs_games")
+    assert(configBuilder.driver === DBSDriver.PsqlDriver)
+    assert(configBuilder.baseType === DBSType.PostgreSQL)
+    assert(configBuilder.port === Some(5432))
+    assert(configBuilder.pwd === None)
   }
 
 }
