@@ -7,7 +7,7 @@ import scala.collection.mutable.{HashMap, Map}
 trait AggregationTask {
   that: MovableSparkSession =>
 
-  protected val outputData: RecordConfigBuilder
+  protected val data: RecordConfigBuilder
 
   /**
    * Add some specific stuff
@@ -33,12 +33,13 @@ trait AggregationTask {
    * @param dataFrame
    */
   protected def doSave(context: Map[String, String], dataFrame: DataFrame) = {
-    outputData match {
+    val mode = context.getOrElse("mode", "Append")
+    data match {
       case f: FileConfigBuilder =>
         f.outputFileFormat match {
-          case FileFormat.PARQUET => dataFrame.write.parquet(f.outputPath)
-          case FileFormat.CSV => dataFrame.write.csv(f.outputPath)
-          case FileFormat.JSON => dataFrame.write.json(f.outputPath)
+          case FileFormat.PARQUET => dataFrame.write.mode(mode).parquet(f.outputPath)
+          case FileFormat.CSV => dataFrame.write.mode(mode).csv(f.outputPath)
+          case FileFormat.JSON => dataFrame.write.mode(mode).json(f.outputPath)
         }
       case d:DBSConfigBuilder => {
         val table = context.getOrElse("table",
