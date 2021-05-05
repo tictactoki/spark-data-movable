@@ -11,15 +11,17 @@ trait SparkSessionConnection {
     DBSConfigBuilder(config, serverName, dbs)
   protected val getFileConfigBuilder = (config: Config, inputPath: String) => FileConfigBuilder(config, inputPath)
 
-  protected def read(fileConfigBuilder: FileConfigBuilder, session: SparkSession): DataFrame = {
+  protected def read(fileConfigBuilder: FileConfigBuilder, session: SparkSession,
+                     optOptions: Option[Map[String, String]] = None): DataFrame = {
     val optDf = for {
       inputFormat <- fileConfigBuilder.inputFileFormat
       inputPath <- fileConfigBuilder.inputPath
     } yield {
+      val reader = optOptions.map { options => session.read.options(options) }.getOrElse(session.read)
       inputFormat match {
-        case FileFormat.CSV => session.read.csv(inputPath)
-        case FileFormat.JSON => session.read.json(inputPath)
-        case FileFormat.PARQUET => session.read.parquet(inputPath)
+        case FileFormat.CSV => reader.csv(inputPath)
+        case FileFormat.JSON => reader.json(inputPath)
+        case FileFormat.PARQUET => reader.parquet(inputPath)
       }
     }
     optDf.getOrElse(session.emptyDataFrame)
