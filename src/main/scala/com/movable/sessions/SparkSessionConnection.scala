@@ -1,8 +1,10 @@
 package com.movable.sessions
 
-import com.movable.models.{ConfigBuilder, DBSConfigBuilder, FileConfigBuilder, FileFormat, RecordConfigBuilder}
+import com.movable.models.{DBSConfigBuilder, FileConfigBuilder, FileFormat}
 import com.typesafe.config.Config
 import org.apache.spark.sql.{DataFrame, SparkSession}
+
+import scala.collection.mutable.HashMap
 
 trait SparkSessionConnection {
   that: MovableSparkSession =>
@@ -12,7 +14,7 @@ trait SparkSessionConnection {
   protected val getFileConfigBuilder = (config: Config, inputPath: String) => FileConfigBuilder(config, inputPath)
 
   protected def read(fileConfigBuilder: FileConfigBuilder, session: SparkSession,
-                     optOptions: Option[Map[String, String]] = None): DataFrame = {
+                     optOptions: Option[HashMap[String, String]] = None): DataFrame = {
     val optDf = for {
       inputFormat <- fileConfigBuilder.inputFileFormat
       inputPath <- fileConfigBuilder.inputPath
