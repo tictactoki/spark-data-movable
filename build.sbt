@@ -51,6 +51,7 @@ libraryDependencies ++= Seq(
   "org.scalactic" %% "scalactic" % scalaTestVersion,
   "org.scalamock" %% "scalamock" % "4.4.0" % Test,
   "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+  "com.github.mrpowers" %% "spark-fast-tests" % "1.0.0" % "test",
   "com.h2database" % "h2" % "1.4.199" % Test
 
 )
