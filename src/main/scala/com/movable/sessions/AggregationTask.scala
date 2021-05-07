@@ -1,38 +1,37 @@
 package com.movable.sessions
 
-import com.movable.models.{DBSConfigBuilder, FileConfigBuilder, FileFormat, RecordConfigBuilder}
+import com.movable.models.{Context, DBSConfigBuilder, FileConfigBuilder, FileFormat, RecordConfigBuilder}
 import org.apache.spark.sql.DataFrame
 
-import scala.collection.mutable.{HashMap, Map}
-trait AggregationTask {
+trait AggregationTask[T <: RecordConfigBuilder] {
   that: MovableSparkSession =>
 
-  protected val data: RecordConfigBuilder
+  protected val data: T
 
   /**
    * Add some specific stuff
    */
-  @transient private[sessions] lazy val context: Map[String, String] = HashMap[String, String]()
+  @transient private[sessions] lazy val context: Context = new Context()
 
   /**
    * If you want to add some specific configuration before the run job
    * @param context
    */
-  protected def beforeSave(context: Map[String, String]): Unit = {}
+  protected def beforeSave(context: Context): Unit = {}
 
   /**
    *
    * @param context
    * @return the aggregated DataFrame for the specific task
    */
-  def aggregation(context: Map[String, String]): DataFrame
+  def aggregation(context: Context): DataFrame
 
   /**
    * Where you save your data
    * @param context
    * @param dataFrame
    */
-  protected def doSave(context: Map[String, String], dataFrame: DataFrame) = {
+  protected def doSave(context: Context, dataFrame: DataFrame) = {
     val mode = context.getOrElse("mode", "Append")
     data match {
       case f: FileConfigBuilder =>
@@ -54,7 +53,7 @@ trait AggregationTask {
    * @param context
    * @param dataFrame
    */
-  protected def afterSave(context: Map[String, String], dataFrame: DataFrame): Unit = {}
+  protected def afterSave(context: Context, dataFrame: DataFrame): Unit = {}
 
 
   def run() = {
