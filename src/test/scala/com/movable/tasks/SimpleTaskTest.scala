@@ -32,7 +32,6 @@ class SimpleTaskTest extends AnyFlatSpec with ConfigFactoryTest with SparkSessio
   "A Simple Task" should "read and aggregate data" in {
     import session.implicits._
     val simpleTask = SimpleTask(config)
-    case class A(id: String, name: String, firstname: String)
     val context = new Context()
     val expected = Seq(("2","Dupont","Dupont"), ("1", "Foo","Bar"), ("3","Odersky","Martin"))
     val expectedDF = expected.toDF("id","name","firstname")
