@@ -37,8 +37,6 @@ class ConfigModelTest extends AnyFlatSpec with ConfigFactoryTest {
   "An AWS Config Builder class" should "load the config in AWSConfigBuilder format" in {
     val configBuilder = AWSConfigBuilder(config)
     assert(configBuilder.region === "eu-west-3")
-    println(configBuilder.getBucket("datalake_team1"))
-    println(configBuilder.getBucket("datalake_not_exist_team"))
     assert(configBuilder.getBucket("datalake_team1") === Some("s3://bucket-team1"))
     assert(configBuilder.getBucket("datalake_not_exist_team") === None)
   }
