@@ -1,4 +1,4 @@
-package com.movable.tasks
+package com.movable.datalake.tasks
 
 import com.github.mrpowers.spark.fast.tests.DatasetComparer
 import com.movable.models.{ConfigFactoryTest, Context, FileConfigBuilder}

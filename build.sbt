@@ -8,7 +8,7 @@ scalaVersion := "2.12.10"
 
 Compile / run / scalacOptions ++= Seq("-deprecation")
 
-assembly / assemblyJarName := "spark-fatjar-1.0.jar"
+assembly / assemblyJarName := "spark-data-movable-fatjar-1.0.jar"
 
 assembly / assemblyMergeStrategy := {
   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
@@ -45,7 +45,6 @@ libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "8.0.17",
   "com.microsoft.sqlserver" % "mssql-jdbc" % "7.4.1.jre8",
   "com.h2database" % "h2" % "1.4.199",
-  "io.getquill" %% "quill-jdbc" % "3.5.1",
 
   // test
   "org.scalactic" %% "scalactic" % scalaTestVersion,

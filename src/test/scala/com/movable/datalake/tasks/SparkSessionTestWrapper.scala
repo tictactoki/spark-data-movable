@@ -1,4 +1,4 @@
-package com.movable.tasks
+package com.movable.datalake.tasks
 
 import org.apache.spark.sql.SparkSession
 

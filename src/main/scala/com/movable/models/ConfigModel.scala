@@ -40,6 +40,7 @@ object NamespaceConfig extends Enumeration {
 
   object AwsNamespace {
     val Region = "region"
+    val Datalake = "datalake"
   }
 
 }
@@ -49,7 +50,7 @@ trait ConfigNamespace {
 }
 
 sealed abstract class ConfigBuilder(val config: Config) extends ConfigNamespace {
-  def getConfigField(namespace: String)(field: String) = s"$namespace.$field"
+  protected def getConfigField(namespace: String)(field: String) = s"$namespace.$field"
   protected lazy val curryingNamespace: String => String = (field: String) => getConfigField(namespace)(field)
 }
 
@@ -66,6 +67,9 @@ final case class AWSConfigBuilder(override val config: Config) extends ConfigBui
   import NamespaceConfig.AwsNamespace._
   override val namespace: String = getConfigField(NamespaceConfig.Movable)(NamespaceConfig.Aws)
   lazy val region = config.getString(getConfigField(namespace)(Region))
+  def getBucket(team: String): Option[String] = {
+    Try(config.getString(getConfigField(namespace)(s"$Datalake.$team.bucket"))).toOption
+  }
 }
 
 final case class DBSConfigBuilder(override val config: Config, serverName: String, dbs: String)
