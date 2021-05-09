@@ -1,7 +1,7 @@
 package com.movable.sessions
 
-import com.movable.models.{Context, DBSConfigBuilder, FileConfigBuilder, FileFormat, RecordConfigBuilder}
-import org.apache.spark.sql.DataFrame
+import com.movable.models.{Context, ContextDefaultKey, DBSConfigBuilder, FileConfigBuilder, FileFormat, RecordConfigBuilder}
+import org.apache.spark.sql.{DataFrame, SaveMode}
 
 trait AggregationTask[T <: RecordConfigBuilder] {
   that: MovableSparkSession =>
@@ -12,6 +12,12 @@ trait AggregationTask[T <: RecordConfigBuilder] {
    * Add some specific stuff
    */
   @transient private[sessions] lazy val context: Context = new Context()
+
+  /**
+   * Add value in context
+   * @param context
+   */
+  protected def initContext(context: Context) {}
 
   /**
    * If you want to add some specific configuration before the run job
@@ -32,7 +38,7 @@ trait AggregationTask[T <: RecordConfigBuilder] {
    * @param dataFrame
    */
   protected def doSave(context: Context, dataFrame: DataFrame) = {
-    val mode = context.getOrElse("mode", "Append")
+    val mode = context.getMode()
     data match {
       case f: FileConfigBuilder =>
         f.outputFileFormat match {
