@@ -1,12 +1,19 @@
 package com.movable.models
 
-import com.movable.sessions.TaskMode
+import com.movable.sessions.{CompressionMode, TaskMode}
 import org.apache.spark.sql.SaveMode
 
 import scala.collection.mutable
 import scala.util.Try
 
 class Context extends mutable.HashMap[String, String] {
+
+  def this() = {
+    this()
+    put(ContextOption.Compression, CompressionMode.Snappy)
+    put(ContextOption.Mode, TaskMode.Append)
+    put(ContextOption.PartitionNumber, "8")
+  }
 
   def getValueAsInt(key: String, default: Int): Int = {
     Try(get(key).map(_.toInt)).toOption.flatten.getOrElse(default)
@@ -21,11 +28,11 @@ class Context extends mutable.HashMap[String, String] {
   }
 
   def getMode(): SaveMode = {
-    get(ContextDefaultKey.Mode).map(Context.getMode).getOrElse(SaveMode.Append)
+    get(ContextOption.Mode).map(Context.getMode).getOrElse(SaveMode.Append)
   }
 
   def getPartition(): Int = {
-    getValueAsInt(ContextDefaultKey.PartitionNumber, 8)
+    getValueAsInt(ContextOption.PartitionNumber, 8)
   }
 
 }
@@ -41,8 +48,9 @@ object Context {
 
 }
 
-object ContextDefaultKey {
+object ContextOption {
   val Mode = "mode"
   val PartitionNumber = "partition"
   val PartitionType = "partitionType"
+  val Compression = "compression"
 }
