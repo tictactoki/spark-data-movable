@@ -1,6 +1,6 @@
 package com.movable.sessions
 
-import com.movable.models.{Context, ContextDefaultKey, DBSConfigBuilder, FileConfigBuilder, FileFormat, RecordConfigBuilder}
+import com.movable.models.{Context, DBSConfigBuilder, FileConfigBuilder, FileFormat, RecordConfigBuilder}
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 trait AggregationTask[T <: RecordConfigBuilder] {
@@ -11,7 +11,11 @@ trait AggregationTask[T <: RecordConfigBuilder] {
   /**
    * Add some specific stuff
    */
-  @transient private[sessions] lazy val context: Context = new Context()
+  @transient private[sessions] lazy val context: Context = {
+    val context = new Context()
+    context.initDefault()
+    context
+  }
 
   /**
    * Add value in context

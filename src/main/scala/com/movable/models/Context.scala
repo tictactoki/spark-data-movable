@@ -8,8 +8,7 @@ import scala.util.Try
 
 class Context extends mutable.HashMap[String, String] {
 
-  def this() = {
-    this()
+  def initDefault() {
     put(ContextOption.Compression, CompressionMode.Snappy)
     put(ContextOption.Mode, TaskMode.Append)
     put(ContextOption.PartitionNumber, "8")
